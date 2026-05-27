@@ -53,8 +53,3 @@ The main LoRA runs inject low-rank adapters into D-FINE decoder linear layers wh
 5. Run full, partial, or LoRA training using the configs in `D-FINE/configs/dfine/custom/`.
 6. Use `D_fine/analysis/collect_results.py` and plotting scripts to regenerate result tables and figures.
 
-## Main Result Artifacts
-
-The final summarized results are in `D_fine/results/all_results.xlsx`. The final report is `D_fine/paper/EECE695D_Final_Paper.docx`, and the generated figures are stored in `D_fine/paper/figures/`.
-
-Compact model weights are stored in `model_weights/`. These are inference-only checkpoints created from the best runs by keeping the EMA model weights and removing optimizer, scheduler, scaler, and training-resume state.
