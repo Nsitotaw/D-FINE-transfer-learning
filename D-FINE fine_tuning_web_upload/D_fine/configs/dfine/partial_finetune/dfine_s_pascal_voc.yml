@@ -1,0 +1,44 @@
+# Partial fine-tuning of D-FINE-S on Pascal VOC — BACKBONE FROZEN
+# Only decoder + FDR head + GO-LSD head are updated
+
+__include__:
+  - ../../dataset/pascal_voc_detection.yml
+
+output_dir: results/partial_finetune/pascal_voc
+
+model: DFINE
+backbone: HGNetV2
+num_classes: 20
+
+# Backbone is frozen — only decoder/head trains
+freeze_backbone: True
+freeze_encoder: False
+
+optimizer:
+  type: AdamW
+  params:
+    - params: '^(?!.*backbone).*$'
+      lr: 0.0001
+  lr: 0.0001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+
+lr_scheduler:
+  type: MultiStepLR
+  milestones: [80, 100]
+  gamma: 0.1
+
+lr_warmup_scheduler:
+  type: LinearWarmup
+  warmup_duration: 500
+
+epoches: 120
+clip_max_norm: 0.1
+use_amp: True
+use_ema: True
+ema_decay: 0.9999
+seed: 0
+
+eval_spatial_size: [640, 640]
+eval_interval: 5
+checkpoint_interval: 10

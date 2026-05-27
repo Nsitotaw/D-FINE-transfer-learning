@@ -1,0 +1,56 @@
+# PEFT (LoRA) fine-tuning of D-FINE-S on Pascal VOC
+# LoRA is injected into the transformer decoder attention layers.
+# Only LoRA parameters + detection head are trained.
+
+__include__:
+  - ../../dataset/pascal_voc_detection.yml
+
+output_dir: results/peft/pascal_voc
+
+model: DFINE
+backbone: HGNetV2
+num_classes: 20
+
+# PEFT settings
+peft:
+  method: lora
+  lora_rank: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  # Target modules in transformer decoder (attention projection layers)
+  target_modules:
+    - "decoder.layers.*.self_attn.in_proj_weight"
+    - "decoder.layers.*.cross_attn.in_proj_weight"
+    - "decoder.layers.*.self_attn.out_proj"
+    - "decoder.layers.*.cross_attn.out_proj"
+  # Also fine-tune the detection head (class + bbox heads)
+  trainable_head: True
+
+freeze_backbone: True
+freeze_encoder: True
+
+optimizer:
+  type: AdamW
+  params:
+    - params: 'lora_'         # only LoRA params
+      lr: 0.0003
+    - params: '^(?=.*head).*$'
+      lr: 0.0001
+  lr: 0.0003
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+
+lr_scheduler:
+  type: CosineAnnealingLR
+  T_max: 120
+
+epoches: 120
+clip_max_norm: 0.1
+use_amp: True
+use_ema: True
+ema_decay: 0.9999
+seed: 0
+
+eval_spatial_size: [640, 640]
+eval_interval: 5
+checkpoint_interval: 10

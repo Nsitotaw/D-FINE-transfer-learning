@@ -1,0 +1,25 @@
+# Pascal VOC — inference only (zero-shot with COCO pretrained model)
+
+task: detection
+num_classes: 80
+remap_mscoco_category: False
+
+val_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    img_folder: data/pascal_voc/VOC2012/JPEGImages
+    ann_file: data/pascal_voc/annotations/instances_val.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops:
+        - {type: Resize, size: [640, 640]}
+        - {type: ConvertPILImage, dtype: float32, scale: True}
+        - {type: ConvertBoxes, fmt: cxcywh, normalize: True}
+  shuffle: False
+  num_workers: 4
+  drop_last: False
+  collate_fn: default_collate_fn
+
+eval_spatial_size: [640, 640]
